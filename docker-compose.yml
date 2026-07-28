@@ -1,0 +1,159 @@
+services:
+  # ============================================
+  # PRODUCT MICROSERVICE (MySQL)
+  # ============================================
+  
+  mysql:
+    image: mysql:latest
+    container_name: mysql-productservice
+    hostname: mysql-host-productmicroservice
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: ecommerceproductsdatabase
+    networks:
+      - ecommerce-network
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./MySQL/db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin"]
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  products-api:
+    image: my-dotnet-app:initial
+    container_name: products-api-service
+    build:
+      context: ../eCommerceSolution.ProductsService
+      dockerfile: ProductsMicroService.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      MYSQL_HOST: mysql-host-productmicroservice
+      MYSQL_PASSWORD: admin
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+    networks:
+      - ecommerce-network
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ============================================
+  # USER MICROSERVICE (PostgreSQL)
+  # ============================================
+  
+  postgres:
+    image: postgres:latest
+    container_name: postgres-userservice1
+    hostname: postgres-host-usermicroservice
+    environment:
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: ecommerceusersdatabase
+    networks:
+      - ecommerce-network
+    volumes:
+      - postgres-data:/var/lib/postgresql
+      - ./POSTGRES/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    healthcheck:
+      test: ["CMD", "pg_isready", "-U", "postgres", "-d", "ecommerceusersdatabase"]
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  users-api:
+    image: users-microservice:1.0
+    container_name: users-api-service
+    build:
+      context: ../eCommerceSolution.UsersService
+      dockerfile: eCommerce.API/Dockerfile
+    environment:
+      ASPNETCORE_ENVIRONMENT: Development
+      POSTGRES_HOST: postgres-host-usermicroservice
+      POSTGRES_PASSWORD: admin
+      ConnectionStrings__PostgresConnection: Host=postgres-host-usermicroservice;Port=5432;Database=ecommerceusersdatabase;Username=postgres;Password:admin;
+    ports:
+      - "8090:8080"
+      - "8091:8081"
+    networks:
+      - ecommerce-network
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # ============================================
+  # ORDERS MICROSERVICE (MongoDB)
+  # ============================================
+  
+  mongodb:
+    image: mongo:7.0
+    container_name: mongodb-orderservice
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_DATABASE: OrdersDatabase
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+      - ./MongoDB/init.js:/docker-entrypoint-initdb.d/init.js
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  orders-api:
+    image: ordersmicroserviceapi:latest
+    container_name: orders-api-service
+    build:
+      context: ../eCommerceSolution.OrdersService/14. Testing Orders Endpoints
+      dockerfile: OrdersMicroservice.API/Dockerfile
+    environment:
+      - MONGODB_HOST=mongodb
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE=OrdersDatabase
+      - MONGODB_USER=admin
+      - MONGODB_PASSWORD=admin
+      - ConnectionStrings__MongoDB=mongodb://admin:admin@mongodb:27017/OrdersDatabase?authSource=admin
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ASPNETCORE_HTTPS_PORTS=8081
+    ports:
+      - "8100:8080"
+      - "8101:8081"
+    networks:
+      - ecommerce-network
+    depends_on:
+      mongodb:
+        condition: service_healthy
+    restart: unless-stopped
+
+# ============================================
+# NETWORKS
+# ============================================
+
+networks:
+  ecommerce-network:
+    driver: bridge
+    name: ecommerce-network
+
+# ============================================
+# VOLUMES
+# ============================================
+
+volumes:
+  mysql-data:
+    driver: local
+  postgres-data:
+    driver: local
+  mongodb-data:
+    driver: local

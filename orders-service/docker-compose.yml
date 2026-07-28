@@ -1,0 +1,329 @@
+services:
+  # ============================================
+  # ORDERS MICROSERVICE (MongoDB)
+  # ============================================
+  
+  ordersmicroservice.api:
+    image: ordersmicroserviceapi:dev    
+    container_name: orders-api-service
+    build:
+      context: ../14. Testing Orders Endpoints
+      dockerfile: OrdersMicroservice.API/Dockerfile
+    environment:
+      # MongoDB Connection
+      - MONGODB_HOST=mongodb-container
+      - MONGODB_PORT=27017
+      - MONGODB_DATABASE=OrdersDatabase
+      - MONGODB_USER=admin
+      - MONGODB_PASSWORD=admin
+      # Full connection string (alternative to individual vars)
+      - ConnectionStrings__MongoDB=mongodb://admin:admin@mongodb-container:27017/OrdersDatabase?authSource=admin
+      # Cross-service endpoints
+      - UsersMicroserviceName=apigateway
+      - UsersMicroservicePort=8080
+      - UsersMicroserviceUrl=http://users-microservice:8080
+      - ProductsMicroserviceName=apigateway
+      - ProductsMicroservicePort=8080
+      # Redis Connection
+      - REDIS_HOST=redis-cache
+      - REDIS_PORT=6379
+      - ConnectionStrings__Redis=redis-cache:6379,password=admin,abortConnect=false
+      # RabbitMQ Connection
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASSWORD=admin
+      - ConnectionStrings__RabbitMQ=amqp://admin:admin@rabbitmq:5672
+      # ASP.NET Core
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+    ports:
+      - "8104:8080"
+    networks:
+      - orders-mongodb-network
+      - ecommerce-network
+    depends_on:
+      mongodb-container:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mongodb-container:
+    image: mongo:7.0
+    container_name: mongodb-orderservice
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: admin
+      MONGO_INITDB_ROOT_PASSWORD: admin
+      MONGO_INITDB_DATABASE: OrdersDatabase
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+      - ./MongoDB/init.js:/docker-entrypoint-initdb.d/init.js
+    networks:
+      - orders-mongodb-network
+    healthcheck:
+      test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ============================================
+  # PRODUCT MICROSERVICE (MySQL)
+  # ============================================
+  
+  products-microservice:
+    image: my-dotnet-app:initial
+    container_name: products-api-service
+    environment:
+      # ASP.NET Core
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      # MySQL Connection
+      - MYSQL_HOST=mysql-container
+      - MYSQL_PORT=3306
+      - MYSQL_DATABASE=ecommerceproductsdatabase
+      - MYSQL_USER=root
+      - MYSQL_PASSWORD=admin
+      # Full connection string (alternative)
+      - ConnectionStrings__DefaultConnection=Server=mysql-container;Port=3306;Database=ecommerceproductsdatabase;Uid=root;Pwd=admin;
+      # Cross-service endpoints
+      - OrdersMicroserviceUrl=http://ordersmicroservice.api:8080
+      - UsersMicroserviceUrl=http://users-microservice:8080
+      # Redis Connection
+      - REDIS_HOST=redis-cache
+      - REDIS_PORT=6379
+      - ConnectionStrings__Redis=redis-cache:6379,password=admin,abortConnect=false
+      # RabbitMQ Connection
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASSWORD=admin
+      - RABBITMQ_Products_Exchange=products.header.exchange
+      - ConnectionStrings__RabbitMQ=amqp://admin:admin@rabbitmq:5672
+    ports:
+      - "8082:8080"
+      - "8083:8081"
+    networks:
+      - products-mysql-network
+      - ecommerce-network
+    depends_on:
+      mysql-container:
+        condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  mysql-container:
+    image: mysql:8.0
+    container_name: mysql-productservice
+    environment:
+      MYSQL_ROOT_PASSWORD: admin
+      MYSQL_DATABASE: ecommerceproductsdatabase
+    ports:
+      - "3307:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./MySQL/db.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - products-mysql-network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-padmin"]
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ============================================
+  # USER MICROSERVICE (PostgreSQL)
+  # ============================================
+  
+  users-microservice:
+    image: users-microservice:1.0
+    container_name: users-api-service2
+    environment:
+      # ASP.NET Core
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      # PostgreSQL Connection
+      - POSTGRES_HOST=postgres-container
+      - POSTGRES_PORT=5432
+      - POSTGRES_DATABASE=eCommerceUsers
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=admin
+      # Full connection string (alternative)
+      - ConnectionStrings__PostgresConnection=Host=postgres-container;Port=5432;Database=eCommerceUsers;Username=postgres;Password=admin;
+      # Cross-service endpoints
+      - OrdersMicroserviceUrl=http://ordersmicroservice.api:8080
+      # Redis Connection
+      - REDIS_HOST=redis-cache
+      - REDIS_PORT=6379
+      - ConnectionStrings__Redis=redis-cache:6379,password=admin,abortConnect=false
+      # RabbitMQ Connection
+      - RABBITMQ_HOST=rabbitmq
+      - RABBITMQ_PORT=5672
+      - RABBITMQ_USER=admin
+      - RABBITMQ_PASSWORD=admin
+      - ConnectionStrings__RabbitMQ=amqp://admin:admin@rabbitmq:5672
+    ports:
+      - "8092:8080"
+      - "8093:8081"
+    networks:
+      - users-postgres-network
+      - ecommerce-network
+    depends_on:
+      - postgres-container
+      - redis-cache
+      - rabbitmq
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
+
+  postgres-container:
+    image: postgres:16-alpine
+    container_name: postgres-userservice
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: admin
+      POSTGRES_DB: eCommerceUsers
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+      - ./POSTGRES/01-init.sql:/docker-entrypoint-initdb.d/01-init.sql
+    networks:
+      - users-postgres-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d eCommerceUsers"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+      start_period: 60s
+    restart: unless-stopped
+
+  # ============================================
+  # REDIS CACHE SERVICE
+  # ============================================
+  
+  redis-cache:
+    image: redis:7.2-alpine
+    container_name: redis-cache
+    command: redis-server --appendonly yes --requirepass admin
+    ports:
+      - "6379:6379"
+    volumes:
+      - ./redis-data:/data
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "--raw", "incr", "ping"]
+      timeout: 10s
+      retries: 10
+      start_period: 30s
+    restart: unless-stopped
+
+  # ============================================
+  # RABBITMQ MESSAGE BROKER
+  # ============================================
+  
+  rabbitmq:
+    image: rabbitmq:3.13-management
+    container_name: rabbitmq-broker
+    hostname: rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: admin
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    networks:
+      - ecommerce-network
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "-q", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    restart: unless-stopped
+
+  # ============================================
+  # API GATEWAY
+  # ============================================
+  
+  apigateway:
+    image: apigateway
+    build:
+      context: .
+      dockerfile: ApiGateway/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_HTTP_PORTS=8080
+      - ProductsServiceUrl=http://products-api-service:8080
+      - UsersServiceUrl=http://users-api-service2:8080
+      - OrdersServiceUrl=http://orders-api-service:8080
+    ports:
+      - "4000:8080"
+    networks:
+      - ecommerce-network
+    depends_on:
+      - products-microservice
+      - users-microservice
+      - ordersmicroservice.api
+    restart: unless-stopped
+  
+# ============================================
+# NETWORKS (Isolated per database + shared)
+# ============================================
+
+networks:
+  orders-mongodb-network:
+    driver: bridge
+  products-mysql-network:
+    driver: bridge
+  users-postgres-network:
+    driver: bridge
+  ecommerce-network:
+    driver: bridge
+    name: ecommerce-network
+
+# ============================================
+# VOLUMES
+# ============================================
+
+volumes:
+  mongodb-data:
+    name: mongodb-data
+    driver: local
+  mysql-data:
+    name: mysql-data
+    driver: local
+  postgres-data:
+    name: postgres-data
+    driver: local
+  redis-data:
+    name: redis-data
+    driver: local
+  rabbitmq-data:
+    name: rabbitmq-data
+    driver: local

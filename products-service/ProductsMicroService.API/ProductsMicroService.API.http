@@ -1,0 +1,21 @@
+﻿@ProductsMicroService.API_HostAddress = https://localhost:7282
+
+@ProductId=string
+GET {{ProductsMicroService.API_HostAddress}}/api/products/search/productid/9e7e7085-6f4e-4921-8f15-c59f084080f9
+
+###
+
+
+
+POST {{ProductsMicroService.API_HostAddress}}/api/products
+Content-Type: application/json
+
+{
+  "productName": "",
+  "category": "furniture",
+  "unitPrice": -5,
+  "quantityInStock": -9
+}
+
+
+###

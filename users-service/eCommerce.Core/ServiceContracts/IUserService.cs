@@ -1,0 +1,34 @@
+﻿using eCommerce.API.Controllers;
+using eCommerce.Core.DTO;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace eCommerce.Core.ServiceContracts;
+
+public interface IUserService
+{
+    /// <summary>
+    /// Method to handle user login use case and returns an AuthenticationResponse
+    /// object that contains status of login
+    /// </summary>
+    /// <param name="loginRequest"></param>
+    /// <returns></returns>
+    Task<AuthenticationResponse?> Login(LoginRequest loginRequest);
+    /// <summary>
+    /// Method to handle user registration use case and returns an AuthenticationResponse
+    /// object that contains status of registration
+    /// </summary>
+    /// <param name="registerRequest"></param>
+    /// <returns></returns>
+    Task<AuthenticationResponse?> Register(RegisterRequest registerRequest);
+
+    /// <summary>
+    /// Returns UserDTO object based on the given UserID
+    /// </summary>
+    /// <param name="userID">UserID to search</param>
+    /// <returns>UserDTO object based on the matching UserID</returns>
+    Task<UserDTO> GetUserByUserID(Guid userID);
+}

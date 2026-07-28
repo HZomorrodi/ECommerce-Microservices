@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk.Web">
+
+	<PropertyGroup>
+		<TargetFramework>net8.0</TargetFramework>
+		<Nullable>enable</Nullable>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<UserSecretsId>da1a67c1-70dc-4984-8b93-fa1f0cd40528</UserSecretsId>
+		<DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+		<DockerComposeProjectPath>..\docker-compose.dcproj</DockerComposeProjectPath>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.22.1-Preview.1" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<ProjectReference Include="..\eCommerce.Core\eCommerce.Core.csproj" />
+		<ProjectReference Include="..\eCommerce.Infrastructure\eCommerce.Infrastructure.csproj" />
+		<PackageReference Include="Swashbuckle.AspNetCore" Version="9.0.6" />
+		<PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
+	</ItemGroup>
+
+</Project>

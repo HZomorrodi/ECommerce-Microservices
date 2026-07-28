@@ -1,0 +1,57 @@
+﻿@OrdersMicroservice.API_HostAddress = https://localhost:7059
+@OrdersMicroservice.API_HostAddress = http://localhost:8104
+@OrdersMicroservice.API_HostAddress = http://localhost:4000
+
+GET {{OrdersMicroservice.API_HostAddress}}/api/orders
+
+###
+
+POST {{OrdersMicroservice.API_HostAddress}}/api/orders
+Content-Type: application/json
+{
+  "userID": "3fa85f64-5717-4562-b3fc-2c963f66afa6",
+  "orderDate": "2026-06-04T18:35:09.772Z",
+  "orderItems": [
+    {
+      "productID": "1a9df78b-3f46-4c3d-9f2a-1b9f69292a77",
+      "unitPrice": 10,
+      "quantity": 10
+    }
+  ]
+}
+
+###
+
+GET {{OrdersMicroservice.API_HostAddress}}/api/orders/search/userid/26558af2-ec55-48a2-b207-e40ceeab3b40
+
+###
+
+GET {{OrdersMicroservice.API_HostAddress}}/gateway/Orders/search/orderid/4d9b6010-48e6-4a0e-bd4e-461c85c32c1d
+
+###
+
+GET {{OrdersMicroservice.API_HostAddress}}/gateway/Orders
+
+###
+  
+GET {{OrdersMicroservice.API_HostAddress}}/gateway/Products
+Client-Id: TestClient
+###
+PUT {{OrdersMicroservice.API_HostAddress}}/gateway/Products
+Client-Id: TestClient
+Content-Type: application/json
+ {
+    "productID": "1a9df78b-3f46-4c3d-9f2a-1b9f69292a77",
+      "unitPrice": 1299.99,
+      "quantity": 1,
+      "totalPrice": 1299.99,
+      "productName": "Apple iPhone 16 Pro Max",
+      "category": "Electronics"
+  }
+###
+DELETE {{OrdersMicroservice.API_HostAddress}}/gateway/Products/08dedde2-b432-499e-89cb-ac40dd1d46ba
+Client-Id: TestClient
+Content-Type: application/json
+###
+
+ 
