@@ -18,7 +18,7 @@ A production-style **ASP.NET Core 8 Microservices** solution demonstrating distr
 
 # 🚀 Architecture
 
-<img width="1536" height="1024" alt="ChatGPT Image Jul 30, 2026, 02_45_54 PM" src="https://github.com/user-attachments/assets/145dfeef-04c8-4cc9-9d25-8575324321a1" />)
+<img width="1536" height="1024" alt="ChatGPT Image Jul 30, 2026, 02_45_54 PM" src="https://github.com/user-attachments/assets/145dfeef-04c8-4cc9-9d25-8575324321a1" />
 
 ---
 
