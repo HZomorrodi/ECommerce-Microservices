@@ -1,4 +1,4 @@
-<img width="1900" height="647" alt="image" src="https://github.com/user-attachments/assets/2981755e-f839-4397-9be4-09a7a0f6db59" /># 🛒 E-Commerce Microservices
+# 🛒 E-Commerce Microservices
 
 <p align="center">
 
