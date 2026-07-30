@@ -1,175 +1,122 @@
-# 🛒 E-Commerce Microservices
+<img width="1900" height="647" alt="image" src="https://github.com/user-attachments/assets/2981755e-f839-4397-9be4-09a7a0f6db59" /># 🛒 E-Commerce Microservices
 
-```{=html}
 <p align="center">
-```
-![.NET](https://img.shields.io/badge/.NET-8-512BD4?style=for-the-badge&logo=dotnet)
-![ASP.NET
-Core](https://img.shields.io/badge/ASP.NET_Core-Microservices-5C2D91?style=for-the-badge)
-![Docker](https://img.shields.io/badge/Docker-2496ED?style=for-the-badge&logo=docker)
-![RabbitMQ](https://img.shields.io/badge/RabbitMQ-FF6600?style=for-the-badge&logo=rabbitmq)
-![Redis](https://img.shields.io/badge/Redis-DC382D?style=for-the-badge&logo=redis)
-![Ocelot](https://img.shields.io/badge/Ocelot-API_Gateway-4CAF50?style=for-the-badge)
 
-```{=html}
+![.NET](https://img.shields.io/badge/.NET-8-purple)
+![ASP.NET Core](https://img.shields.io/badge/ASP.NET_Core-8-blue)
+![Microservices](https://img.shields.io/badge/Architecture-Microservices-success)
+![Docker](https://img.shields.io/badge/Docker-Containerized-blue)
+![RabbitMQ](https://img.shields.io/badge/RabbitMQ-Event_Driven-orange)
+![Redis](https://img.shields.io/badge/Redis-Distributed_Cache-red)
+![Ocelot](https://img.shields.io/badge/Ocelot-API_Gateway-green)
+
 </p>
-```
-A production-style **ASP.NET Core Microservices** solution demonstrating
-distributed system design, asynchronous messaging, API Gateway,
-distributed caching, resiliency patterns, Docker containerization, and
-polyglot persistence.
 
-------------------------------------------------------------------------
+A production-style **ASP.NET Core 8 Microservices** solution demonstrating distributed system design using **Ocelot API Gateway**, **RabbitMQ**, **Redis**, **Docker Compose**, and multiple databases.
 
-# ✨ Highlights
+---
 
--   ✅ ASP.NET Core 8
--   ✅ Microservices Architecture
--   ✅ Ocelot API Gateway
--   ✅ RabbitMQ Event-Driven Communication
--   ✅ Redis Distributed Cache
--   ✅ JWT Authentication
--   ✅ Docker & Docker Compose
--   ✅ SQL Server, MySQL & MongoDB
--   ✅ Polly Retry & Circuit Breaker
--   ✅ Dapper & Entity Framework Core
--   ✅ FluentValidation & AutoMapper
+# 🚀 Architecture
 
-------------------------------------------------------------------------
+<img width="1536" height="1024" alt="ChatGPT Image Jul 30, 2026, 02_45_54 PM" src="https://github.com/user-attachments/assets/145dfeef-04c8-4cc9-9d25-8575324321a1" />)
 
-# 🏛 Architecture
+---
 
-``` text
-                        Client
-                           │
-                           ▼
-                 Ocelot API Gateway
-          ┌────────────┼────────────┐
-          ▼            ▼            ▼
-   Users Service  Products Service  Orders Service
-          │            │            │
-          └────────────┼────────────┘
-                       ▼
-                   RabbitMQ
-             Product Created/Updated/Deleted
-                       │
-                       ▼
-                  Orders Sync
+# 📦 Services
 
-Redis → Distributed Cache
+| Service | Database | Description |
+|----------|----------|-------------|
+| Orders Service | MongoDB | Order management |
+| Products Service | MySQL | Product catalog |
+| Users Service | SQL Server | Authentication & User Management |
+| API Gateway | - | Ocelot API Gateway |
 
-Databases
-Users    → SQL Server
-Products → MySQL
-Orders   → MongoDB
-```
+---
 
-# 📁 Repository Structure
+# 🏗 Solution Structure
 
-``` text
+```text
 ECommerce-Microservices
 │
-├── users-service
-├── products-service
-├── orders-service
 ├── api-gateway
+├── orders-service
+├── products-service
+├── users-service
 ├── docker
-└── docker-compose.yaml
+│   ├── MySQL
+│   └── PostgreSQL
+│
+├── docker-compose.yml
+└── README.md
 ```
 
-# 🚀 Services
+---
 
-## 👤 Users Service
+# ✨ Features
 
--   JWT Authentication
--   User Registration & Login
--   Dapper
--   SQL Server
--   FluentValidation
--   Clean Architecture
+- ASP.NET Core 8
+- Microservices Architecture
+- Ocelot API Gateway
+- RabbitMQ Event-Driven Communication
+- Redis Distributed Cache
+- Docker Compose
+- MongoDB
+- MySQL
+- SQL Server
+- Repository Pattern
+- Dependency Injection
+- FluentValidation
+- AutoMapper
+- Dapper
+- RESTful APIs
 
-## 📦 Products Service
+---
 
--   Product CRUD
--   Minimal API
--   EF Core + MySQL
--   RabbitMQ Publisher
--   AutoMapper
--   Repository Pattern
+# 🖥 Screenshots
 
-## 🛍 Orders Service
 
--   Order Processing
--   MongoDB
--   RabbitMQ Consumer
--   HttpClient
--   Polly Retry
--   Circuit Breaker
+## Products Service
 
-## 🌐 API Gateway
+<img width="1901" height="796" alt="Screenshot 2026-07-30 150512" src="https://github.com/user-attachments/assets/47d2d28f-181b-429d-b9b9-57e38f472cb2" />
 
--   Ocelot Routing
--   Reverse Proxy
--   Single Entry Point
+## Users Service
 
-# 📨 Event-Driven Communication
+<img width="1900" height="648" alt="Screenshot 2026-07-30 150214" src="https://github.com/user-attachments/assets/5ee51542-9f05-4c19-a803-28128091ccf7" />
 
-RabbitMQ events:
 
--   Product Created
--   Product Updated
--   Product Deleted
+---
 
-Orders Service subscribes to product events to keep its local product
-data synchronized.
+# ⚙️ Getting Started
 
-# 🐳 Containerized Environment
+```bash
+git clone https://github.com/yourusername/ECommerce-Microservices.git
 
-Run everything with:
+cd ECommerce-Microservices
 
-``` bash
 docker compose up --build
 ```
 
-Containers include:
+---
 
--   API Gateway
--   Users Service
--   Products Service
--   Orders Service
--   RabbitMQ
--   Redis
--   SQL Server
--   MySQL
--   MongoDB
+# 🛠 Tech Stack
 
-# 💻 Technologies
+- ASP.NET Core 8
+- Ocelot
+- RabbitMQ
+- Redis
+- Docker
+- MongoDB
+- MySQL
+- SQL Server
+- Dapper
+- FluentValidation
+- AutoMapper
 
-  Category     Stack
-  ------------ ----------------------------
-  Backend      ASP.NET Core 8, C#
-  APIs         REST, Minimal API
-  ORM          EF Core, Dapper
-  Messaging    RabbitMQ
-  Cache        Redis
-  Gateway      Ocelot
-  Databases    SQL Server, MySQL, MongoDB
-  Resiliency   Polly
-  Validation   FluentValidation
-  Mapping      AutoMapper
-  Containers   Docker, Docker Compose
-
-# 📈 Planned Improvements
-
--   Azure DevOps Pipelines
--   AKS Deployment
--   Health Checks
--   Centralized Logging
--   Distributed Tracing
--   API Versioning
+---
 
 # 👨‍💻 Author
 
 **Hossein Zomorrodi**
 
-GitHub: https://github.com/HZomorrodi
+GitHub:
+https://github.com/HZomorrodi
