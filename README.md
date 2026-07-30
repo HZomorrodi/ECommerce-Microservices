@@ -89,7 +89,7 @@ ECommerce-Microservices
 # ⚙️ Getting Started
 
 ```bash
-git clone https://github.com/yourusername/ECommerce-Microservices.git
+git clone [https://github.com/yourusername/ECommerce-Microservices.git](https://github.com/HZomorrodi/ECommerce-Microservices.git)
 
 cd ECommerce-Microservices
 
